@@ -13,7 +13,10 @@ import (
 )
 
 type GenerateServices struct {
+	return &NewGenerateService
 }
+
+
 
 func NewGenerateService() *GenerateServices {
 	return &GenerateServices{}

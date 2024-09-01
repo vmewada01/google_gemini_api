@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"go_gemini/handler"
+	"go_gemini/service"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -21,8 +23,12 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	apiGroup := e.Group("/api")
+
 	// Define the API route
-	e.POST("/generate", generateContent)
+	GeminiGroup := apiGroup.Group("/gemini")
+	GeminiService := service.GenerateServices()
+	handler.GenerateHandler(GeminiGroup, GeminiService)
 
 	// Start the server
 	e.Logger.Fatal(e.Start(":8080"))
