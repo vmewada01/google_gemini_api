@@ -9,32 +9,25 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
-type GenerateServices struct {
-	return &NewGenerateService
-}
+type GenerateServices struct{}
 
-
-
-func NewGenerateService() *GenerateServices {
+func NewGenerateServices() *GenerateServices {
 	return &GenerateServices{}
 }
 
-func (g GenerateServices) generateContent(c echo.Context) error {
-	// Define the API key and URL
+func (g *GenerateServices) GenerateContent(c echo.Context) error {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Access the environment variable
 	apiKey := os.Getenv("GEMINI_KEY")
 
 	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + apiKey
 
-	// Create the request body
 	body := map[string]interface{}{
 		"contents": []map[string]interface{}{
 			{
@@ -45,7 +38,6 @@ func (g GenerateServices) generateContent(c echo.Context) error {
 		},
 	}
 
-	// Convert the body to JSON
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
@@ -53,7 +45,6 @@ func (g GenerateServices) generateContent(c echo.Context) error {
 		})
 	}
 
-	// Create the request
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
@@ -61,10 +52,8 @@ func (g GenerateServices) generateContent(c echo.Context) error {
 		})
 	}
 
-	// Set the headers
 	req.Header.Set("Content-Type", "application/json")
 
-	// Send the request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -74,7 +63,6 @@ func (g GenerateServices) generateContent(c echo.Context) error {
 	}
 	defer resp.Body.Close()
 
-	// Read the response body
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
@@ -82,6 +70,5 @@ func (g GenerateServices) generateContent(c echo.Context) error {
 		})
 	}
 
-	// Return the response body as JSON
 	return c.JSONBlob(http.StatusOK, respBody)
 }
